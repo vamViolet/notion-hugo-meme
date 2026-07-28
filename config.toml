@@ -1,7 +1,7 @@
 ##########################################
 # 站点配置
 
-baseURL = "https://vamviolet.github.io/"
+baseURL = "https://notion.dongxiaoqi.top"
 title = "dongxiaoqi’s blogs"
 languageCode = "zh-CN"
 hasCJKLanguage = true
