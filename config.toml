@@ -1,8 +1,8 @@
 ##########################################
 # 站点配置
 
-baseURL = "https://example.com/"
-title = "Hugo 主题 MemE"
+baseURL = "https://vamviolet.github.io/"
+title = "dongxiaoqi’s blogs"
 languageCode = "zh-CN"
 hasCJKLanguage = true
 # 版权信息（支持 Markdown）
@@ -96,9 +96,9 @@ uglyURLs = false
 # 作者信息
 [author]
     # 名字
-    name = "reuixiy"
+    name = "dongxiaoqi"
     # 邮箱
-    email = "reuixiy@gmail.com"
+    email = "852783734@qq.com"
     # 座右铭或简介
     motto = "Viva La Vida"
     # 头像
@@ -196,29 +196,21 @@ uglyURLs = false
     #     pre = "internal"
     #     post = "home"
     [[menu.main]]
-        pageref = "/posts/"
-        name = "文章"
+        name = "首页"
+        weight = 1
+        url = "/"
+    [[menu.main]]
+        name = "技术"
+        url = "/categories/tech/"
         weight = 2
-        pre = "internal"
-        post = "archive"
     [[menu.main]]
-        pageref = "/categories/"
-        name = "分类"
+        name = "随笔"
+        url = "/categories/essay/"
         weight = 3
-        pre = "internal"
-        post = "th"
     [[menu.main]]
-        pageref = "/tags/"
-        name = "标签"
-        weight = 4
-        pre = "internal"
-        post = "tags"
-    [[menu.main]]
-        pageref = "/about/"
         name = "关于"
         weight = 5
-        pre = "internal"
-        post = "user-circle"
+        url = "/categories/about/"
     [[menu.main]]
         weight = 6
         identifier = "theme-switcher"
