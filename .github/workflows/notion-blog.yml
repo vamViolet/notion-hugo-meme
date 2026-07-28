@@ -1,21 +1,27 @@
 name: notion-blog
 on:
   # On pull requests commits
-  # Automatic trigger at 00:00 everyday
+  # Automatic trigger every 2 hours
   schedule:
-    - cron: "0 */2 * * *" # daily
+    - cron: "0 */2 * * *"
   # Manual trigger
   workflow_dispatch:
+# A single GITHUB_TOKEN is needed to let the later jobs pick up the
+# commits produced by the sync job (otherwise they'd build a stale tree).
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+# Allow only one deployment at a time, skipping queued runs in between.
+concurrency:
+  group: pages
+  cancel-in-progress: false
 jobs:
   auto-sync-from-notion-to-github:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        # Make sure the actual branch is checked out when running on pull
-        # requests. Enable this if using "on: pull_request".
-        # with:
-          # ref: ${{ github.head_ref }}
+        uses: actions/checkout@v4
 
       - name: notion-blog
         uses: rxrw/notion-blog@master
@@ -32,3 +38,63 @@ jobs:
           commit_message: 'notion-blog: update articles (auto)'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Build the Hugo site and deploy it to GitHub Pages.
+  # Runs after the sync job so freshly pulled articles are published too.
+  build-and-deploy:
+    needs: auto-sync-from-notion-to-github
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout code
+        # The sync job commits new articles with the default GITHUB_TOKEN.
+        # A checkout pinned to the run's original SHA would miss those commits,
+        # so below we reset to the freshly-pushed branch tip.
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          submodules: recursive
+
+      - name: Pull latest commits (incl. just-synced articles)
+        run: |
+          git fetch --no-tags --depth=1 origin "${{ github.ref_name }}"
+          git reset --hard "origin/${{ github.ref_name }}"
+          git submodule update --init --recursive
+          echo "Checked out $(git log -1 --format='%h %s')"
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          # MemE theme requires the Hugo extended build (SCSS support).
+          # Pinned to 0.112.7: the submodule pins MemE at v5.0.0 (2022), whose
+          # `resources.ToCSS` template usage breaks on Hugo >= 0.13x. Do NOT
+          # bump to `latest` without first updating the theme submodule.
+          hugo-version: '0.112.7'
+          extended: true
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build with Hugo
+        # A custom domain (notion.dongxiaoqi.top) is set via static/CNAME,
+        # so we must build with the custom baseURL from config.toml — NOT the
+        # github.io URL that configure-pages reports. Overriding --baseURL with
+        # the latter would make every internal link 404 under the custom domain.
+        env:
+          HUGO_ENVIRONMENT: production
+        run: |
+          hugo \
+            --minify \
+            --destination public
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
