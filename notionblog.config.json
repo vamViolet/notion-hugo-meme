@@ -4,15 +4,15 @@
   "imagesFolder": "static/images/",
   "contentFolder": "content/zh",
   "archetypeFile": "archetypes/notion.md",
-  "propertyDescription": "Description",
-  "propertyTags": "Tags",
+  "propertyDescription": "",
+  "propertyTags": "",
   "propertyCategories": "Category",
   "categoryMap": {
     "技术": "tech",
     "随笔": "essay",
     "关于": "about"
   },
-  "filterProp": "Status",
+  "filterProp": "状态",
   "filterValue": [
     "Finished ✅"
   ],
