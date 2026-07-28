@@ -5,17 +5,17 @@
   "contentFolder": "content/zh",
   "archetypeFile": "archetypes/notion.md",
   "propertyDescription": "",
-  "propertyTags": "",
+  "propertyTags": "Tags",
   "propertyCategories": "Category",
   "categoryMap": {
     "技术": "tech",
     "随笔": "essay",
     "关于": "about"
   },
-  "filterProp": "状态",
+  "filterProp": "Status",
   "filterValue": [
-    "Finished ✅"
+    "Finished"
   ],
-  "publishedValue": "Published 🖨",
+  "publishedValue": "Published",
   "useShortcodes": true
 }
