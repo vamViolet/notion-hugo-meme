@@ -2,7 +2,7 @@
 # 站点配置
 
 baseURL = "https://notion.dongxiaoqi.top/"
-title = "vamViolet's Blog"
+title = "dongxiaoqi's Blog"
 languageCode = "zh-CN"
 hasCJKLanguage = true
 # 版权信息（支持 Markdown）
