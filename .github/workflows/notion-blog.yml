@@ -32,14 +32,108 @@ jobs:
           # which is named NOTION_TOKEN.
           NOTION_SECRET : ${{ secrets.NOTION_TOKEN }}
 
+      - name: Clean up offline articles
+        # The notion-blog Action only ever ADDS/updates files — it never deletes.
+        # So once an article is synced, changing its Notion Status away from
+        # "Finished" (e.g. back to 未开始/进行中 to take it offline) would leave a
+        # stale .md in the repo and the post would stay live forever.
+        #
+        # This step fixes that. It asks Notion for the CURRENT set of articles
+        # whose Status is Finished (about to sync) OR Published (already synced
+        # — the Action flips Status to "Published" right after a successful sync,
+        # so a Published post must be KEPT, not deleted), computes the expected
+        # .md filenames the same way the Action does, and `git rm`s any .md under
+        # content/zh that isn't in that set. Result: flip a post's Status in
+        # Notion and the next run removes it from the blog automatically.
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: |
+          python3 - <<'PYEOF'
+          import json, os, subprocess, sys, urllib.request
+          TOKEN = os.environ["NOTION_TOKEN"]
+          DB = "3ab13513efe3806ba544c53ca8058cbb"
+          H = {"Authorization": f"Bearer {TOKEN}", "Notion-Version": "2022-06-28", "Content-Type": "application/json"}
+          CONTENT_DIR = "content/zh"
+          CATEGORY_MAP = {"技术": "tech", "随笔": "essay", "关于": "about"}
+          # Keep Finished (pending sync) AND Published (already synced). Deleting
+          # Published would wipe a post the moment the Action marks it Published.
+          KEEP_STATUSES = {"Finished", "Published"}
+
+          def expected_filename(title, category_name):
+              # Replicate the Action's generateArticleName: lower, drop invalid
+              # UTF-8, spaces -> underscores, append .md. "_index" -> "_index.md".
+              name = title.lower().replace(" ", "_")
+              if "_index" in name:
+                  name = "_index"
+              fname = name + ".md"
+              # Category folder: 首页/_index -> root, else categoryMap[name].
+              category = ""
+              if category_name not in ("首页", "_index"):
+                  category = CATEGORY_MAP.get(category_name, "").lower()
+              return os.path.join(CONTENT_DIR, category, fname).replace("\\", "/")
+
+          def query_all():
+              # Notion returns max 100 pages per request; page through cursors.
+              results, cursor = [], None
+              while True:
+                  body = {"page_size": 100}
+                  if cursor:
+                      body["start_cursor"] = cursor
+                  req = urllib.request.Request(
+                      f"https://api.notion.com/v1/databases/{DB}/query",
+                      data=json.dumps(body).encode(), headers=H, method="POST")
+                  data = json.loads(urllib.request.urlopen(req, timeout=30).read())
+                  results.extend(data["results"])
+                  if data.get("has_more") and data.get("next_cursor"):
+                      cursor = data["next_cursor"]
+                  else:
+                      break
+              return results
+
+          try:
+              articles = query_all()
+          except Exception as e:
+              # Cleanup is best-effort: a Notion hiccup must NOT block the commit
+              # of articles the Action just synced. Skip cleanup and exit clean.
+              print(f"::warning::Notion query failed ({e}); skipping cleanup.")
+              sys.exit(0)
+
+          expected = set()
+          for p in articles:
+              title = "".join(x.get("plain_text", "") for x in p["properties"]["Name"]["title"])
+              st = p["properties"]["Status"]["status"]
+              stname = st["name"] if st else None
+              cat = p["properties"]["Category"]["select"]
+              catname = cat["name"] if cat else ""
+              if stname in KEEP_STATUSES:
+                  expected.add(expected_filename(title, catname))
+
+          actual = set()
+          for root, _, files in os.walk(CONTENT_DIR):
+              for f in files:
+                  if f.endswith(".md"):
+                      actual.add(os.path.join(root, f).replace("\\", "/"))
+
+          to_delete = sorted(actual - expected)
+          print(f"Keep {len(expected)} article(s); found {len(actual)} .md file(s); {len(to_delete)} to delete.")
+          for d in to_delete:
+              print(f"  git rm {d}")
+              # arg list, not a shell string -> no quoting/injection worries.
+              subprocess.run(["git", "rm", "-f", "--", d], check=False)
+          if not to_delete:
+              print("No offline articles to clean up.")
+          PYEOF
+
       - name: Commit synced articles
         # Commit & push the markdown that notion-blog just generated under
-        # content/zh (and any downloaded images under static/images). We use
-        # plain git instead of a prettier action: the upstream prettier action
-        # is pinned to an old Node and rewrites Notion's markdown structure,
-        # which corrupts code blocks/tables. Nothing to commit is fine.
-        # `git add` of a path that doesn't exist (e.g. static/images when the
-        # article has no images) would fatal-exit, so add each path tolerantly.
+        # content/zh (and any downloaded images under static/images), plus any
+        # deletions staged by the cleanup step above. We use plain git instead
+        # of a prettier action: the upstream prettier action is pinned to an old
+        # Node and rewrites Notion's markdown structure, which corrupts code
+        # blocks/tables. Nothing to commit is fine. `git add` of a path that
+        # doesn't exist (e.g. static/images when the article has no images)
+        # would fatal-exit, so add each path tolerantly. Deletions are already
+        # staged by `git rm` above, so we only `git add` for new/modified files.
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
