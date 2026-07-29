@@ -35,16 +35,19 @@ jobs:
       - name: Clean up offline articles
         # The notion-blog Action only ever ADDS/updates files — it never deletes.
         # So once an article is synced, changing its Notion Status away from
-        # "Finished" (e.g. back to 未开始/进行中 to take it offline) would leave a
-        # stale .md in the repo and the post would stay live forever.
+        # "Finished" (e.g. to 未开始/进行中, or to the dedicated "Offline" status
+        # to take it down) would leave a stale .md in the repo and the post would
+        # stay live forever.
         #
         # This step fixes that. It asks Notion for the CURRENT set of articles
         # whose Status is Finished (about to sync) OR Published (already synced
         # — the Action flips Status to "Published" right after a successful sync,
         # so a Published post must be KEPT, not deleted), computes the expected
         # .md filenames the same way the Action does, and `git rm`s any .md under
-        # content/zh that isn't in that set. Result: flip a post's Status in
-        # Notion and the next run removes it from the blog automatically.
+        # content/zh that isn't in that set. Anything NOT Finished/Published —
+        # drafts (未开始/进行中) or explicitly-offline (Offline) — gets removed.
+        # Result: flip a post's Status in Notion and the next run removes it from
+        # the blog automatically.
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: |
