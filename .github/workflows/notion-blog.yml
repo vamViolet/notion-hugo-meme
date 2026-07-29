@@ -6,10 +6,11 @@ on:
     - cron: "0 */2 * * *"
   # Manual trigger
   workflow_dispatch:
-# A single GITHUB_TOKEN is needed to let the later jobs pick up the
-# commits produced by the sync job (otherwise they'd build a stale tree).
+# contents: write lets the sync job's prettier step push the synced
+# articles back to the repo (GITHUB_TOKEN needs write for that). The later
+# build-and-deploy job then fetches that freshly-pushed commit.
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 # Allow only one deployment at a time, skipping queued runs in between.
@@ -31,15 +32,22 @@ jobs:
           # which is named NOTION_TOKEN.
           NOTION_SECRET : ${{ secrets.NOTION_TOKEN }}
 
-      - name: Format documents
-        # We need prettier in order to commit the new files, and also it gives a
-        # better look to the Markdown.
-        uses: creyD/prettier_action@v3.1
-        with:
-          prettier_options: --write ./content/zh/**/*.md
-          commit_message: 'notion-blog: update articles (auto)'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit synced articles
+        # Commit & push the markdown that notion-blog just generated under
+        # content/zh (and any downloaded images under static/images). We use
+        # plain git instead of a prettier action: the upstream prettier action
+        # is pinned to an old Node and rewrites Notion's markdown structure,
+        # which corrupts code blocks/tables. Nothing to commit is fine.
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/zh static/images
+          if git diff --cached --quiet; then
+            echo "No article changes to commit."
+          else
+            git commit -m "notion-blog: update articles (auto)"
+            git push
+          fi
 
   # Build the Hugo site and deploy it to GitHub Pages.
   # Runs after the sync job so freshly pulled articles are published too.
