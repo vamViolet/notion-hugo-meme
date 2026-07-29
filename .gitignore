@@ -5,3 +5,5 @@ resources/_gen
 .DS_Store
 node_modules
 *.lock
+# 本地手稿：内容通过 Notion 发布，CI 会同步到 content/zh/，根目录这份不入库以免重复
+OPERATION_MANUAL.md
