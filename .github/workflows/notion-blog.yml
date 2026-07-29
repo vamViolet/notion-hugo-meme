@@ -38,10 +38,13 @@ jobs:
         # plain git instead of a prettier action: the upstream prettier action
         # is pinned to an old Node and rewrites Notion's markdown structure,
         # which corrupts code blocks/tables. Nothing to commit is fine.
+        # `git add` of a path that doesn't exist (e.g. static/images when the
+        # article has no images) would fatal-exit, so add each path tolerantly.
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add content/zh static/images
+          git add content/zh 2>/dev/null || true
+          git add static/images 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No article changes to commit."
           else
