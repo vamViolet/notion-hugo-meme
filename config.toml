@@ -27,6 +27,17 @@ enableRobotsTXT = true
         label = "中文"
         weight = 1
 
+    # 第二语言：开启 hugo.IsMultilingual 后 Stack 侧边栏才渲染语言切换下拉框
+    # （见 themes/stack/layouts/_partials/sidebar/left.html 的 {{ if hugo.IsMultilingual }}）。
+    # 英语内容用 Hugo by-filename 机制：手工维护 content/zh/welcome.en.md（.en 后缀归
+    # 英语语言，content/zh/ 目录让它共享 section "zh"，所以 mainSections/permalinks 不用改）。
+    # 默认语言 zh 从 content/ 根扫描，content/en/ 会被吞成 zh 的 section，故不能用
+    # content/en/ 目录放英语内容——只能用 .en.md 文件后缀。
+    [languages.en]
+        locale = "en-US"
+        label = "English"
+        weight = 2
+
 # 分页
 [pagination]
     pagerSize = 5

@@ -112,10 +112,20 @@ jobs:
                   expected.add(expected_filename(title, catname))
 
           actual = set()
+          # Hand-maintained translations use Hugo's by-filename suffix (.<lang>.md),
+          # e.g. content/zh/welcome.en.md is the English version of the site's
+          # welcome page. The Notion Action never creates these (it only writes
+          # default-language <name>.md), so they are NOT in `expected`. Without
+          # this exclusion they'd be git rm'd on every run. Add lang codes here
+          # if more hand-maintained translations are added.
+          TRANSLATION_SUFFIXES = (".en.md",)
           for root, _, files in os.walk(CONTENT_DIR):
               for f in files:
-                  if f.endswith(".md"):
-                      actual.add(os.path.join(root, f).replace("\\", "/"))
+                  if not f.endswith(".md"):
+                      continue
+                  if f.endswith(TRANSLATION_SUFFIXES):
+                      continue  # keep hand-maintained translations
+                  actual.add(os.path.join(root, f).replace("\\", "/"))
 
           to_delete = sorted(actual - expected)
           print(f"Keep {len(expected)} article(s); found {len(actual)} .md file(s); {len(to_delete)} to delete.")
