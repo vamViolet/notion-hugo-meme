@@ -127,16 +127,80 @@ jobs:
               print("No offline articles to clean up.")
           PYEOF
 
+      - name: Fix tags front-matter format
+        # The notion-blog Action renders the multi-select Tags into the archetype
+        # template as `tags : {{.Tags}}`, where .Tags is a []string. Go's default
+        # slice rendering is "[a b c]" (space-separated, no commas). Hugo's YAML
+        # parser accepts that as a SINGLE tag named "a b c" instead of three tags,
+        # so /tags/ and per-post tag lists show one mangled tag instead of N.
+        #
+        # This step rewrites every content/zh/**/*.md front-matter `tags : [...]`
+        # line so elements are comma-separated. Only touches the tags line inside
+        # the front matter (between the --- fences); leaves body and other fields
+        # alone. Idempotent: already-comma-separated or empty [] lines are skipped.
+        #
+        # CONSTRAINT: tag names must NOT contain spaces. The Action's "[a b c]"
+        # output is space-separated, so a tag like "GitHub Pages" is ambiguous and
+        # cannot be reconstructed losslessly here. Use hyphenated names instead
+        # (e.g. "GitHub-Pages"). The script splits on whitespace, so a spaced name
+        # would be wrongly broken into two tags.
+        run: |
+          python3 - <<'PYEOF'
+          import glob, re
+          fixed = 0
+          for path in glob.glob("content/zh/**/*.md", recursive=True):
+              with open(path, encoding="utf-8") as f:
+                  lines = f.readlines()
+              # Locate the front matter (between leading --- and the next ---).
+              if not lines or not lines[0].strip() == "---":
+                  continue
+              end = None
+              for i in range(1, len(lines)):
+                  if lines[i].strip() == "---":
+                      end = i
+                      break
+              if end is None:
+                  continue
+              changed = False
+              for i in range(1, end):
+                  m = re.match(r"^tags\s*:\s*\[(.*)\]\s*$", lines[i])
+                  if not m:
+                      continue
+                  inner = m.group(1).strip()
+                  if inner == "":
+                      continue  # tags : []  -> leave empty
+                  # Split on whitespace (see CONSTRAINT above: no spaces in names).
+                  parts = inner.replace(",", " ").split()
+                  # de-dup while preserving order
+                  seen, uniq = set(), []
+                  for p in parts:
+                      if p not in seen:
+                          seen.add(p); uniq.append(p)
+                  if not uniq:
+                      continue
+                  new = "tags : [" + ", ".join(uniq) + "]\n"
+                  if new != lines[i]:
+                      lines[i] = new
+                      changed = True
+              if changed:
+                  with open(path, "w", encoding="utf-8") as f:
+                      f.writelines(lines)
+                  fixed += 1
+                  print(f"fixed tags in {path}")
+          print(f"Total files fixed: {fixed}")
+          PYEOF
+
       - name: Commit synced articles
         # Commit & push the markdown that notion-blog just generated under
         # content/zh (and any downloaded images under static/images), plus any
-        # deletions staged by the cleanup step above. We use plain git instead
-        # of a prettier action: the upstream prettier action is pinned to an old
-        # Node and rewrites Notion's markdown structure, which corrupts code
-        # blocks/tables. Nothing to commit is fine. `git add` of a path that
-        # doesn't exist (e.g. static/images when the article has no images)
-        # would fatal-exit, so add each path tolerantly. Deletions are already
-        # staged by `git rm` above, so we only `git add` for new/modified files.
+        # deletions staged by the cleanup step above and the tag-format fixes
+        # from the step above. We use plain git instead of a prettier action:
+        # the upstream prettier action is pinned to an old Node and rewrites
+        # Notion's markdown structure, which corrupts code blocks/tables.
+        # Nothing to commit is fine. `git add` of a path that doesn't exist
+        # (e.g. static/images when the article has no images) would fatal-exit,
+        # so add each path tolerantly. Deletions are already staged by `git rm`
+        # above, so we only `git add` for new/modified files.
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
