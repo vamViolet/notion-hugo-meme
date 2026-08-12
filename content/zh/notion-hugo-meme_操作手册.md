@@ -5,7 +5,7 @@ date: 2026-07-29T03:05:00+08:00
 tags : [Hugo, Notion, GitHub-Pages]
 category: 首页
 description: ""
-lastmod: 2026-08-12T10:20:00+08:00
+lastmod: 2026-08-12T11:01:00+08:00
 author: Github Blog
 toc: false
 gallery: false
@@ -126,6 +126,8 @@ notion-hugo-meme/
 - **正文只取前 100 个 block**：Action 不做 block 分页，超长文章（>100 个 Notion block）会被截断。
 - **错误被吞**：Action 内部出错只 `log.Println` 后 `exit 0`，永远显示「成功」。排查要看 Actions 的完整日志。
 - **属性名硬编码**：Action 代码里写死了 `Name`/`Category`/`Created by` 等英文字段名，改不了。
+- **Tags 渲染缺陷：**rxrw/notion-blog 用 **tags : {{.Tags}}** 渲染多选标签，Go 切片默认输出 **[a b c]**（空格分隔无逗号），Hugo 会当成一个名为 “a b c” 的畸形标签。本仓库工作流加了 Fix tags front-matter format 步骤，同步后自动改成逗号分隔 **[a, b, c]**，博客 /tags/ 页和文章页才能正确显示多个独立标签。
+- **Tag 命名约束：**Notion 的 tag 名**不要含空格**（如用 GitHub-Pages 而非 GitHub Pages）。Action 输出端是空格分隔，含空格的标签名无法无损还原，会被错误拆成多个。中文标签不受影响（如 生产力）。
 
 ## 七、相关链接
 - 仓库：https://github.com/vamViolet/notion-hugo-meme
