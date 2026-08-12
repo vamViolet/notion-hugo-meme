@@ -110,7 +110,9 @@ enableRobotsTXT = true
         url = "/categories/tech/"
         weight = 2
         [menu.main.params]
-            icon = "code"
+            # icon 值必须对应 themes/stack/assets/icons/<name>.svg 里已有的图标
+            # （Stack 内置 24 个，见主题 assets/icons/）。code/notes 不在内置集。
+            icon = "categories"
 
     [[menu.main]]
         identifier = "essay"
@@ -118,7 +120,7 @@ enableRobotsTXT = true
         url = "/categories/essay/"
         weight = 3
         [menu.main.params]
-            icon = "notes"
+            icon = "archives"
 
     [[menu.main]]
         identifier = "about"
