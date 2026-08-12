@@ -242,12 +242,14 @@ jobs:
         uses: peaceiris/actions-hugo@v3
         with:
           # Stack theme requires the Hugo extended build (SCSS support).
-          # Pinned to 0.157.2: the submodule pins hugo-theme-stack at v4.0.3,
-          # whose module.toml declares min_version 0.157.0 (it uses the
-          # resources.ToCSS resolver path introduced in 0.13x). MemE used to
-          # force 0.112.7 because its old ToCSS usage broke on newer Hugo;
-          # switching themes lifted that constraint.
-          hugo-version: '0.157.2'
+          # Pinned to 0.163.3: the submodule pins hugo-theme-stack at v4.0.3,
+          # whose module.toml declares min_version 0.157.0. MemE used to force
+          # 0.112.7 because its old resources.ToCSS usage broke on newer Hugo;
+          # switching themes lifted that constraint. NOTE: the 0.157 line has
+          # ONLY 0.157.0 — there is no 0.157.1/0.157.2 release (tried 0.157.2,
+          # the action failed "Unable to find a compatible Hugo release asset").
+          # 0.163.3 is a mature .3 patch, comfortably above Stack's floor.
+          hugo-version: '0.163.3'
           extended: true
 
       - name: Setup Pages
