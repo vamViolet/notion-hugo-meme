@@ -1,13 +1,16 @@
 ---
-banner: "{{.Banner}}"
 title: "{{.Title}}"
-date: {{.CreationDate}}
-tags : {{.Tags}}
-category: {{.Category}}
 description: "{{.Description}}"
+date: {{.CreationDate}}
+image: "{{.Banner}}"
+math: false
+license:
+comments: false
+draft: false
+build:
+    list: always
+tags : {{.Tags}}
+categories: {{.Category}}
 lastmod: {{.LastModified}}
-author: {{.Author}}
-toc: {{.Toc}}
-gallery: {{.Gallery}}
 ---
 {{.Content}}

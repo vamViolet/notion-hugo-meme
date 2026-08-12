@@ -1,3 +1,4 @@
-[submodule "themes/meme"]
-	path = themes/meme
-	url = https://github.com/rxrw/hugo-theme-meme.git
+[submodule "themes/stack"]
+	path = themes/stack
+	url = https://github.com/CaiJimmy/hugo-theme-stack.git
+	branch = master

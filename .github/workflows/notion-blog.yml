@@ -241,11 +241,13 @@ jobs:
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
-          # MemE theme requires the Hugo extended build (SCSS support).
-          # Pinned to 0.112.7: the submodule pins MemE at v5.0.0 (2022), whose
-          # `resources.ToCSS` template usage breaks on Hugo >= 0.13x. Do NOT
-          # bump to `latest` without first updating the theme submodule.
-          hugo-version: '0.112.7'
+          # Stack theme requires the Hugo extended build (SCSS support).
+          # Pinned to 0.157.2: the submodule pins hugo-theme-stack at v4.0.3,
+          # whose module.toml declares min_version 0.157.0 (it uses the
+          # resources.ToCSS resolver path introduced in 0.13x). MemE used to
+          # force 0.112.7 because its old ToCSS usage broke on newer Hugo;
+          # switching themes lifted that constraint.
+          hugo-version: '0.157.2'
           extended: true
 
       - name: Setup Pages
