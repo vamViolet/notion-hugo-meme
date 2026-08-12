@@ -3,7 +3,6 @@
 
 baseURL = "https://notion.dongxiaoqi.top/"
 title = "dongxiaoqi's Blog"
-languageCode = "zh-CN"
 hasCJKLanguage = true
 # 版权信息（支持 Markdown）
 copyright = "CC BY-NC-SA 4.0"
@@ -14,9 +13,19 @@ theme = "stack"
 # i18n
 defaultContentLanguage = "zh"
 defaultContentLanguageInSubdir = false
-
-# 是否生成 robots.txt 文件
 enableRobotsTXT = true
+
+# 语言定义
+# Hugo ≥0.158.0 弃用顶层 languageCode；≥0.163.x 又把 [languages.<code>] 下的
+# languageCode/languageName 改名为 locale/label。这里用最新键名，构建无弃用警告。
+# 风险：显式加 [languages.zh] 后 Hugo 可能把 content/zh/ 当 zh 语言根目录而非 section，
+#       若如此则 mainSections=["zh"] / permalinks zh="/p/:slug/" 会失配，首页变空、URL 变。
+#       本地构建已验证：仍为 section，首页 2 篇文章、/p/ URL 不变、无弃用警告。
+[languages]
+    [languages.zh]
+        locale = "zh-CN"
+        label = "中文"
+        weight = 1
 
 # 分页
 [pagination]
