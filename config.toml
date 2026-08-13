@@ -192,8 +192,8 @@ enableRobotsTXT = true
 
     [params.sidebar]
         compact = false
-        # 头像留空，Stack 显示默认占位；后续可放 assets/img/avatar.png 再填路径
-        avatar = ""
+        # 头像放 assets/img/，Stack 用 .Resources.Get 按此路径解析（必须在 assets/ 下，扩展名与实际文件一致）
+        avatar = "img/avatar.jpeg"
         subtitle = "Viva La Vida"
 
     [params.article]
