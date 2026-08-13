@@ -8,7 +8,7 @@ license:
 comments: true
 draft: false
 build:
-    list: always
+    list: never
 tags : []
 categories: 关于
 lastmod: 2021-06-29
