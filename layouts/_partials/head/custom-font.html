@@ -1,0 +1,8 @@
+{{- /* 覆盖 themes/stack/layouts/_partials/head/custom-font.html：
+        代码字体改为 JetBrains Mono（Google Fonts CDN），替换主题默认的 Lato。
+        中文字体霞鹜文楷走系统回退（用户本地已装则显示，未装则回退系统字体），
+        不从 CDN 加载，省去几 MB webfont 的网络开销。font-family 在 scss/custom.scss 里设置。 */ -}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap">

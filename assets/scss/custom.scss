@@ -1,0 +1,26 @@
+/* 覆盖 themes/stack/assets/scss/custom.scss（主题留空的扩展点）。
+   重定义三个字体 CSS 变量。在 style.scss 中 @import 顺序晚于 variables.scss，
+   所以此处 :root 重定义会覆盖主题默认值（CSS 变量后定义生效）。
+
+   注意：这是 SCSS 静态资源，不经过 Hugo 模板引擎，只能用 CSS 注释，不能写 {{}}。 */
+
+:root {
+    /* 中文字体：霞鹜文楷，走系统回退（本地已装才显示，否则回退系统字体）。
+       - "LXGW WenKai Screen"：屏幕优化版，用户用 npm/webfont 包安装时的 family 名
+       - "LXGW WenKai"：标准版 family 名
+       - "霞鹜文楷"：中文系统下可能的安装名
+       回退到系统无衬线（PingFang/微软雅黑等），保证未安装时仍可读。 */
+    --base-font-family: "LXGW WenKai Screen", "LXGW WenKai", "霞鹜文楷",
+        -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei",
+        "Segoe UI", "Helvetica Neue", sans-serif;
+
+    /* 文章正文用同一字体（主题默认 --article-font-family 就是继承 --base-font-family，
+       这里显式写出，避免主题后续改动影响）。 */
+    --article-font-family: var(--base-font-family);
+
+    /* 代码字体：JetBrains Mono（custom-font.html 已从 Google Fonts 加载），
+       回退到系统等宽字体，中文回退到霞鹜文楷等宽版/系统字体。 */
+    --code-font-family: "JetBrains Mono", "LXGW WenKai Mono",
+        "LXGW WenKai Screen", Menlo, Monaco, Consolas, "Courier New",
+        "PingFang SC", "Microsoft YaHei", monospace;
+}
