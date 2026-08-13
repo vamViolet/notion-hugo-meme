@@ -134,7 +134,12 @@ enableRobotsTXT = true
     [[menu.main]]
         identifier = "tech"
         name = "技术"
-        url = "/categories/tech/"
+        # 注意：notion-blog Action 把文章的 Notion Category（select，中文「技术/随笔/关于」）
+        # 原样写进 front matter 的 categories: 字段，categoryMap 只决定 content/zh 下的
+        # 子目录名（tech/essay/about）。Hugo 是按 front matter 的 categories 值生成分类
+        # 列表页的，所以实际分类页 URL 是中文 /categories/技术/ 而非英文 /categories/tech/。
+        # 菜单必须指向 Hugo 真正生成的那条路径，否则 404。
+        url = "/categories/技术/"
         weight = 2
         [menu.main.params]
             # icon 值必须对应 themes/stack/assets/icons/<name>.svg 里已有的图标
@@ -144,7 +149,9 @@ enableRobotsTXT = true
     [[menu.main]]
         identifier = "essay"
         name = "随笔"
-        url = "/categories/essay/"
+        # 随笔分类暂时还没有文章，/categories/随笔/ 会 404 —— 等以后在 Notion 建
+        # Category=随笔 的文章后会自动出现。先保留菜单项占位。
+        url = "/categories/随笔/"
         weight = 3
         [menu.main.params]
             icon = "archives"
@@ -152,7 +159,7 @@ enableRobotsTXT = true
     [[menu.main]]
         identifier = "about"
         name = "关于"
-        url = "/categories/about/"
+        url = "/categories/关于/"
         weight = 4
         [menu.main.params]
             icon = "user"
