@@ -1,0 +1,32 @@
+{{- /* 覆盖 themes/stack/layouts/_partials/footer/custom.html（主题留空的扩展点）：
+        注入版权行末尾心形图标的跳动动画。该 partial 经 footer/include.html 在
+        每个页面 body 底部渲染，<style> 全局生效。心形 SVG 在 footer/footer.html 里。 */ -}}
+<style>
+    .site-footer .heart-icon {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        margin-left: 0.25em;
+        vertical-align: -0.15em;
+        fill: #ff4d4f;
+        transform-origin: center;
+        animation: heartbeat 1.3s ease-in-out infinite;
+    }
+
+    /* Font Awesome 的 fa-heartbeat：一次"咚-哒"双跳 */
+    @keyframes heartbeat {
+        0%   { transform: scale(1); }
+        14%  { transform: scale(1.3); }
+        28%  { transform: scale(1); }
+        42%  { transform: scale(1.3); }
+        70%  { transform: scale(1); }
+        100% { transform: scale(1); }
+    }
+
+    /* 尊重"减少动态效果"的系统偏好，无障碍 */
+    @media (prefers-reduced-motion: reduce) {
+        .site-footer .heart-icon {
+            animation: none;
+        }
+    }
+</style>
