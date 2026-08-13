@@ -159,7 +159,10 @@ enableRobotsTXT = true
     [[menu.main]]
         identifier = "about"
         name = "关于"
-        url = "/categories/关于/"
+        # 直接指向 aboutme 独立页面，而非 /categories/关于/ 分类页。Notion 里
+        # Category=关于 的 aboutme 文章同步后落在 content/zh/about/aboutme.md，
+        # section 仍是 zh，permalinks zh="/p/:slug/" 让它的 URL 是 /p/aboutme/。
+        url = "/p/aboutme/"
         weight = 4
         [menu.main.params]
             icon = "user"
