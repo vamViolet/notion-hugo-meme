@@ -32,6 +32,22 @@ jobs:
           # which is named NOTION_TOKEN.
           NOTION_SECRET : ${{ secrets.NOTION_TOKEN }}
 
+      - name: Fix file permissions from Docker action
+        # rxrw/notion-blog runs in a Docker container as root, so the files it
+        # creates under content/zh and static/images land root-owned on the
+        # runner. Every later step (cleanup's `git rm`, fix-tags, fix-migrated-
+        # dates) runs as the unprivileged `runner` user and would hit
+        # PermissionError / git-rm failures on those root-owned files. This
+        # latent bug only bites when such a step actually needs to WRITE or
+        # remove a freshly-synced file (e.g. a new article whose tags need
+        # reformatting) — steps that only read sail past it. Loosen the perms
+        # once, right after the Action, so all subsequent steps can modify and
+        # unlink. a+rwX grants read+write to all and +execute to directories
+        # (which is what unlinking/rewriting a file inside a dir requires).
+        run: |
+          sudo chmod -R a+rwX content/zh 2>/dev/null || true
+          sudo chmod -R a+rwX static/images 2>/dev/null || true
+
       - name: Clean up offline articles
         # The notion-blog Action only ever ADDS/updates files — it never deletes.
         # So once an article is synced, changing its Notion Status away from
