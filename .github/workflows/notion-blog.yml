@@ -200,6 +200,25 @@ jobs:
           print(f"Total files fixed: {fixed}")
           PYEOF
 
+      - name: Fix migrated article dates
+        # The notion-blog Action sets each article's front-matter `date:` from
+        # the Notion page's created_time. That is a read-only system field
+        # auto-set to *now* on page creation and not overridable via the API,
+        # so the 9 articles migrated from the old Gridea blog (originally dated
+        # 2021-2023) would all land with today's date and pile up at the top of
+        # the archives as "newest".
+        #
+        # This step runs on every sync (self-healing), after the Action writes
+        # the .md files and after fix-tags, before the commit. It looks up each
+        # article's title in scripts/migrated-dates.json (title -> original
+        # YYYY-MM-DD) and rewrites the `date:` and `lastmod:` front-matter lines
+        # of matching content/zh/**/*.md back to the original date, so the
+        # migrated posts sort and display with their real publication dates.
+        # Idempotent: a file already on the right date is left untouched; remove
+        # an entry from the mapping to stop patching it (the Action's date then
+        # wins again).
+        run: python3 scripts/fix-migrated-dates.py
+
       - name: Commit synced articles
         # Commit & push the markdown that notion-blog just generated under
         # content/zh (and any downloaded images under static/images), plus any
