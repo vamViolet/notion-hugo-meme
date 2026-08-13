@@ -3,7 +3,7 @@ banner: ""
 title: "笔记本连 WiFi 仅微信能用、浏览器与软件无网的完整修复方案"
 date: 2026-08-11T01:59:00+08:00
 tags : [工具]
-category: 首页
+categories: 首页
 description: ""
 lastmod: 2026-08-12T03:27:00+08:00
 author: dongxiaoqi

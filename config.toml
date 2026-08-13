@@ -38,6 +38,13 @@ enableRobotsTXT = true
         label = "English"
         weight = 2
 
+        # 英文站目前只有欢迎页，不需要搜索/归档/标签云/分类组件。
+        # 覆盖为空 → en 走紧凑布局（无右侧栏），也消除 widget 在 en 上下文
+        # 找不到 search/archives 页和空 taxonomy 时的 warnf。中文站不受影响。
+        [languages.en.params.widgets]
+            homepage = []
+            page = []
+
 # 分页
 [pagination]
     pagerSize = 5
@@ -204,8 +211,17 @@ enableRobotsTXT = true
             default = "Licensed under CC BY-NC-SA 4.0"
 
     [params.widgets]
-        homepage = []
-        page = []
+        # 首页右侧栏组件（顺序即显示顺序）。v4 用「内联表数组」语法，每项 { type, params }。
+        # 参考 themes/stack/demo/config/_default/params.toml。组件对应
+        # themes/stack/layouts/_partials/widget/<type>.html，缺页面会 warnf。
+        homepage = [
+            { type = "search" },
+            { type = "archives", params = { limit = 5 } },
+            { type = "categories", params = { limit = 10 } },
+            { type = "tag-cloud", params = { limit = 10 } },
+        ]
+        # 文章页右侧栏：目录
+        page = [{ type = "toc" }]
 
     [params.opengraph.twitter]
         site = ""
