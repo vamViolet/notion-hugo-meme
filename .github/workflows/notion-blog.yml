@@ -235,6 +235,70 @@ jobs:
         # wins again).
         run: python3 scripts/fix-migrated-dates.py
 
+      - name: Hide non-article pages from article lists
+        # aboutme 是 Category=关于 的 Notion 文章，Action 同步后落在 content/zh/
+        # （section=zh，在 mainSections 里），所以它默认会混进首页文章列表、归档页、
+        # /categories/关于/ 分类页和分页——但「关于」应该只通过侧边栏菜单访问
+        # （菜单已直接指向 /p/aboutme/），不该作为一篇普通文章出现在列表里。
+        #
+        # 用 Hugo 原生 build.list front matter 解决：设为 never 后页面仍正常渲染、
+        # URL 仍可访问（render 保持默认 always），但不出现在任何 section/taxonomy
+        # 列表。archetype notion.md 写的是 build.list: always，Action 每次同步都会
+        # 重写文件、把 list 恢复成 always，所以这一步必须在 Action 之后、每次同步
+        # 都跑。幂等：已经是 never 的不动。按 front matter title 精确匹配（比文件名
+        # 稳：title 改了文件名也变，但 title 字段始终是原文）。
+        run: |
+          python3 - <<'PYEOF'
+          import glob, re
+          HIDE_TITLES = {"aboutme"}
+          fixed = 0
+          for path in glob.glob("content/zh/**/*.md", recursive=True):
+              with open(path, encoding="utf-8") as f:
+                  lines = f.readlines()
+              if not lines or lines[0].strip() != "---":
+                  continue
+              end = None
+              for i in range(1, len(lines)):
+                  if lines[i].strip() == "---":
+                      end = i; break
+              if end is None:
+                  continue
+              title = None
+              for i in range(1, end):
+                  m = re.match(r'^title\s*:\s*"?([^"]+?)"?\s*$', lines[i].rstrip("\n"))
+                  if m:
+                      title = m.group(1).strip(); break
+              if title not in HIDE_TITLES:
+                  continue
+              # 在 front matter 里找 build: 块下的 list: 行
+              in_build = False
+              list_idx = list_indent = list_val = None
+              for i in range(1, end):
+                  s = lines[i].rstrip("\n")
+                  if re.match(r'^build\s*:\s*$', s):
+                      in_build = True; continue
+                  if in_build:
+                      if s and not s.startswith((" ", "\t")):
+                          in_build = False; continue
+                      m = re.match(r'^(\s*)list\s*:\s*(\S+)', s)
+                      if m:
+                          list_idx = i; list_indent = m.group(1); list_val = m.group(2).strip()
+                          break
+              if list_idx is not None:
+                  if list_val == "never":
+                      continue  # idempotent
+                  lines[list_idx] = f"{list_indent}list: never\n"
+              else:
+                  # no build.list -> insert one at front-matter end (before closing ---)
+                  lines.insert(end, "    list: never\n")
+                  lines.insert(end, "build:\n")
+              with open(path, "w", encoding="utf-8") as f:
+                  f.writelines(lines)
+              fixed += 1
+              print(f"hid '{title}' from lists: {path}")
+          print(f"Total pages hidden: {fixed}")
+          PYEOF
+
       - name: Commit synced articles
         # Commit & push the markdown that notion-blog just generated under
         # content/zh (and any downloaded images under static/images), plus any
