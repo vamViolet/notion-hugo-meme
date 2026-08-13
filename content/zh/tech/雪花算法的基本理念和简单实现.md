@@ -5,7 +5,7 @@ date: 2021-06-29
 image: ""
 math: false
 license:
-comments: false
+comments: true
 draft: false
 build:
     list: always

@@ -5,7 +5,7 @@ date: 2023-04-14
 image: ""
 math: false
 license:
-comments: false
+comments: true
 draft: false
 build:
     list: always

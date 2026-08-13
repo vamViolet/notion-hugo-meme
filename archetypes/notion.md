@@ -5,7 +5,7 @@ date: {{.CreationDate}}
 image: "{{.Banner}}"
 math: false
 license:
-comments: false
+comments: true
 draft: false
 build:
     list: always

@@ -172,6 +172,22 @@ enableRobotsTXT = true
             icon = "brand-github"
 
     [[menu.social]]
+        identifier = "csdn"
+        name = "CSDN"
+        url = "https://blog.csdn.net/qq_32332777"
+        [menu.social.params]
+            # CSDN 主题无内置图标，用项目 assets/icons/csdn.svg（自定义）
+            icon = "csdn"
+
+    [[menu.social]]
+        identifier = "email"
+        name = "Email"
+        url = "mailto:dxq852783734@gmail.com"
+        [menu.social.params]
+            # email 用项目 assets/icons/email.svg（Tabler mail 图标）
+            icon = "email"
+
+    [[menu.social]]
         identifier = "rss"
         name = "RSS"
         url = "/index.xml"
@@ -247,5 +263,28 @@ enableRobotsTXT = true
             enabled = true
 
     [params.comments]
-        enabled = false
-        provider = "disqus"
+        enabled = true
+        provider = "giscus"
+
+        # Giscus：基于 GitHub Discussions 的评论系统。
+        # 访客用 GitHub 账号登录评论，评论存为仓库 Discussions。
+        # 前置：仓库 public ✓、Discussions 已启用 ✓、需在 https://github.com/apps/giscus
+        # 安装 Giscus App 并授权本仓库（让它能读 Discussions）——这是唯一手动步骤。
+        # repo-id / category-id 通过 GitHub GraphQL API 直接取得，无需走 giscus.app。
+        [params.comments.giscus]
+            repo             = "vamViolet/notion-hugo-meme"
+            repoID           = "R_kgDOTllGGw"
+            category         = "Announcements"
+            categoryID       = "DIC_kwDOTllGG84DDR7I"
+            # 按文章 title 映射到 discussion（文章 URL 改了也不丢评论）
+            mapping          = "title"
+            # 严格匹配：title 必须完全一致才复用 discussion，避免误关联
+            strict           = 0
+            reactionsEnabled = 1
+            emitMetadata     = 0
+            inputPosition    = "top"
+            # 跟随博客明暗主题
+            lightTheme       = "light"
+            darkTheme        = "dark_dimmed"
+            lang             = "zh-CN"
+            loading          = "lazy"
