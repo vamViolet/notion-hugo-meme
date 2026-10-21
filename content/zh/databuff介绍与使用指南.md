@@ -1,7 +1,7 @@
 ---
-title: "DataBuff 介绍与使用指南"
+title: "DataBuff介绍与使用指南"
 description: ""
-date: 2026-08-24T10:50:00+08:00
+date: 2026-10-21T07:45:00+08:00
 image: ""
 math: false
 license:
@@ -10,8 +10,8 @@ draft: false
 build:
     list: always
 tags : [APM, Java]
-categories: 技术
-lastmod: 2026-08-24T11:42:00+08:00
+categories: 
+lastmod: 2026-10-21T07:49:00+08:00
 ---
 # DataBuff 介绍与使用指南
 > 参考来源：DataBuff 官方文档（v0.1.7） <https://databuff.ai/docs/zh>
