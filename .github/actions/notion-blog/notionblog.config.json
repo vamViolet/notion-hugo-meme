@@ -1,0 +1,18 @@
+{
+    "databaseID": "",
+    "imagesLink": "/images/posts",
+    "imagesFolder": "static/images/",
+    "contentFolder": "content/zh",
+    "archetypeFile": "archetypes/notion.md",
+    "propertyDescription": "Description",
+    "propertyTags": "Tags",
+    "propertyCategories": "Category",
+    "categoryMap": "{\"技术\":\"tech\",\"EMO\":\"hope\",\"随笔\":\"essay\",\"旅行\":\"travel\"}",
+    "filterProp": "Status",
+    "filterValue": [
+        "Finished ✅",
+        "Published 🖨"
+    ],
+    "publishedValue": "Published 🖨",
+    "useShortcodes": true
+}
