@@ -2,6 +2,7 @@ package notion_blog
 
 import (
 	"bytes"
+	"crypto/sha1"
 	"fmt"
 	"io"
 	"log"
@@ -72,6 +73,48 @@ func ConvertRichText(t []notionapi.RichText) string {
 	return buf.String()
 }
 
+// extFromContentType 根据响应头 Content-Type 推断图片后缀。
+func extFromContentType(ct string) string {
+	if i := strings.Index(ct, ";"); i >= 0 {
+		ct = ct[:i]
+	}
+	switch strings.TrimSpace(strings.ToLower(ct)) {
+	case "image/png":
+		return ".png"
+	case "image/jpeg", "image/jpg":
+		return ".jpg"
+	case "image/gif":
+		return ".gif"
+	case "image/webp":
+		return ".webp"
+	case "image/svg+xml":
+		return ".svg"
+	case "image/avif":
+		return ".avif"
+	case "image/bmp":
+		return ".bmp"
+	case "image/x-icon", "image/vnd.microsoft.icon":
+		return ".ico"
+	}
+	return ".png"
+}
+
+// sanitizeFileName 清理文件名中对文件系统不友好的字符，并限制长度。
+func sanitizeFileName(name string) string {
+	name = strings.Map(func(r rune) rune {
+		switch r {
+		case '/', '\\', ':', '*', '?', '"', '<', '>', '|':
+			return '_'
+		}
+		return r
+	}, name)
+	runes := []rune(name)
+	if len(runes) > 80 {
+		name = string(runes[:80])
+	}
+	return name
+}
+
 func getImage(imgURL string, config BlogConfig) (_ string, err error) {
 	// Split image url to get host and file name
 	splittedURL, err := url.Parse(imgURL)
@@ -80,7 +123,22 @@ func getImage(imgURL string, config BlogConfig) (_ string, err error) {
 	}
 
 	// Get file name
-	name := splittedURL.Path
+	//
+	// 注意：Notion/微信等图床的 URL，其 path 通常是多级目录
+	// （Notion: /<workspace-uuid>/<object-uuid>/<file>，微信: /sz_mmbiz_png/<hash>/<n>）。
+	// 原实现直接拿整段 path 当文件名，os.Create 到 static/images/ 下写多级路径时
+	// 因父目录不存在而失败；失败后又把这段 path 原样返回当图片地址，
+	// 最终在页面上渲染成指向站点根目录的相对链接（404，图片显示不出来）。
+	// 这里只取最后一段做文件名，并用 URL 哈希前缀避免不同目录下同名文件互相覆盖。
+	base := path.Base(splittedURL.Path)
+	if base == "" || base == "." || base == "/" {
+		base = "image"
+	}
+	if decoded, derr := url.PathUnescape(base); derr == nil && decoded != "" {
+		base = decoded
+	}
+	sum := sha1.Sum([]byte(imgURL))
+	name := fmt.Sprintf("%x_%s", sum[:4], sanitizeFileName(base))
 
 	spin := spinner.StartNew(fmt.Sprintf("Getting image `%s`", name))
 	defer func() {
@@ -94,14 +152,20 @@ func getImage(imgURL string, config BlogConfig) (_ string, err error) {
 
 	resp, err := http.Get(imgURL)
 	if err != nil {
-		return "", fmt.Errorf("couldn't download image: %s", err)
+		return imgURL, fmt.Errorf("couldn't download image: %s", err)
 	}
 	defer resp.Body.Close()
 
 	statusOK := resp.StatusCode >= 200 && resp.StatusCode < 300
 	if !statusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("couldn't download image, server returned an error: %d\n%s", resp.StatusCode, body)
+		return imgURL, fmt.Errorf("couldn't download image, server returned an error: %d\n%s", resp.StatusCode, body)
+	}
+
+	// 有些图床的 URL 路径不带扩展名（如微信 mmbiz 的 `/640?wx_fmt=png`），
+	// 用响应头的 Content-Type 补一个后缀，避免静态文件没有扩展名。
+	if path.Ext(name) == "" {
+		name += extFromContentType(resp.Header.Get("Content-Type"))
 	}
 
 	err = os.MkdirAll(config.ImagesFolder, 0777)
@@ -112,14 +176,14 @@ func getImage(imgURL string, config BlogConfig) (_ string, err error) {
 	// Create the file
 	out, err := os.Create(filepath.Join(config.ImagesFolder, name))
 	if err != nil {
-		return name, fmt.Errorf("couldn't create image file: %s", err)
+		return imgURL, fmt.Errorf("couldn't create image file: %s", err)
 	}
 	defer out.Close()
 
 	// Write the body to file
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("couldn't save image to file: %s", err)
+		return imgURL, fmt.Errorf("couldn't save image to file: %s", err)
 	}
 
 	return filepath.Join(config.ImagesLink, name), nil
