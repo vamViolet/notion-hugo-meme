@@ -11,16 +11,16 @@ build:
     list: always
 tags : [工具]
 categories: 随笔
-lastmod: 2026-10-28T06:39:00+08:00
+lastmod: 2026-10-28T07:26:00+08:00
 ---
 # 为什么用到？
 老旧的电脑虽然从500G固态配置，又加了1T的固态，分了4个区（C盘：100G，D盘：400G，E盘：500G，F盘：500G）勉强够用。。近期AI应用使用越来越频繁，导致100G的C盘空间严重不足，清理C盘多次后，依旧不能解决问题，无奈只能扩大C盘，最先想到合并分区，但有跨区和大批量的文件，没办法直接合并。然后查到了Robocopy，用这个办法先把1T硬盘上的两个分区文件合并，大概80G文件用了20分钟。最后把电脑分区调整为C盘：500G，D盘1T，完美解决！
 
-![](/496b8658-988f-4779-9b2e-628ed43ab891/5778eacc-e04e-4d67-95e6-eee1258d2848/893df6b39d41f1e094eabbf7e055db21.png)
+![](/images/b5b26322_893df6b39d41f1e094eabbf7e055db21.png)
 
-![](/496b8658-988f-4779-9b2e-628ed43ab891/ce2d4baa-dbe6-4223-a8b5-79be566626fc/d8c21ae2d75d79cb55962f5dbf4048a1.jpg)
+![](/images/14fd1e69_d8c21ae2d75d79cb55962f5dbf4048a1.jpg)
 
-![](/496b8658-988f-4779-9b2e-628ed43ab891/572f40d7-dc65-4073-8d10-908633ac6a6b/image.png)
+![](/images/95a5e9d6_image.png)
 
 # Robocopy 快速复制大批量文件的技巧
 Robocopy（Robust File Copy）是 Windows 内置的强大复制工具，下面从核心参数、提速技巧到完整示例进行说明。

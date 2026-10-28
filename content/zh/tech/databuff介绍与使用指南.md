@@ -10,8 +10,8 @@ draft: false
 build:
     list: always
 tags : [APM, Java]
-categories: 
-lastmod: 2026-10-28T06:06:00+08:00
+categories: 技术
+lastmod: 2026-10-28T06:44:00+08:00
 ---
 # DataBuff 介绍与使用指南
 > 参考来源：DataBuff 官方文档（v0.1.7） <https://databuff.ai/docs/zh>

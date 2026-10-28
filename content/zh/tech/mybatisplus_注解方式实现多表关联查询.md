@@ -122,8 +122,8 @@ Closing non transactional SqlSession [org.apache.ibatis.session.defaults.Default
 	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
 ```
 ### 结果截图
-![](/post-images/1623814772810.png)
+![](/images/2a5db996_1623814772810.png)
 
-![](/post-images/1623814827312.png)
+![](/images/ae4cf148_1623814827312.png)
 
 
