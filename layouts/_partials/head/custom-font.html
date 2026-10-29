@@ -27,15 +27,16 @@
 {{- $noto := "fonts/noto-serif-sc.css" | relURL -}}
 {{- $wenkai := "fonts/lxgw-wenkai-screen.css" | relURL -}}
 {{- $mono := "fonts/sarasa-mono-sc-cjk.css" | relURL -}}
+{{- $sym := "fonts/sarasa-mono-sc-symbol.css" | relURL -}}
 
 <link rel="stylesheet" href="{{ $latin }}">
 
-{{ range slice $noto $wenkai $mono }}
+{{ range slice $noto $wenkai $mono $sym }}
 <link rel="preload" as="style" href="{{ . }}">
 <link rel="stylesheet" href="{{ . }}" media="print" onload="this.media='all'">
 {{- end }}
 <noscript>
-    {{ range slice $noto $wenkai $mono }}
+    {{ range slice $noto $wenkai $mono $sym }}
     <link rel="stylesheet" href="{{ . }}">
     {{- end }}
 </noscript>

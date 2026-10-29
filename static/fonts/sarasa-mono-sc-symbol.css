@@ -1,0 +1,26 @@
+/* 更纱黑体 Mono SC —— 符号部分（代码块用）。自动生成，请勿手改
+ *
+ * 与同目录 sarasa-mono-sc-cjk.css 同源（@fontpkg/sarasa-mono-sc@0.36.0 的 Regular，
+ * 上游 Sarasa Gothic，SIL OFL 1.1，版权见 fonts/LICENSE-sarasa-gothic.txt）。
+ *
+ * 为什么要单独一组：更纱把「东亚宽度=歧义/中性」的一批符号（←→▼■□★①✓ 等）按 CJK
+ * 惯例设计成整字宽（1.0em）。经 120% 放大后它们会占 2 格，而代码块里的树状图/ASCII
+ * 图是把这些符号当 1 格用的，于是箭头和竖线错位。
+ * 这里改用 size-adjust: 60%，把 1.0em 压回 0.6em —— 恰好等于 JetBrains Mono 的一格。
+ *
+ * 于是代码块里形成一条干净规则：
+ *   不属汉字/CJK 标点/全角形式（东亚宽度非 W/F）的字符，一律占 1 格；
+ *   汉字与全角形式占 2 格。
+ *
+ * 这一族在 --code-font-family 里排在 sarasa-mono-sc-cjk 之前，
+ * 两者 unicode-range 有重叠时以字体栈靠前者为准，所以这些符号不会被放大那组抢走。
+ */
+@font-face {
+  font-family: 'Sarasa Mono SC Symbol';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  size-adjust: 60%;
+  src: url('/fonts/sarasa-mono-sc-symbol/sarasa-mono-sc-symbol-000.woff2') format('woff2');
+  unicode-range: U+1160-11FF, U+2001, U+2003, U+2014-2015, U+2024-2026, U+2030-2031, U+203B-203C, U+2042, U+2047-2049, U+2053, U+2140, U+2190-21E9, U+21F1-21F3, U+21F5-21FC, U+220F-2211, U+221D-221E, U+223E, U+22C0-22C3, U+22EE-22F1, U+2307, U+2312, U+2318, U+231C-231F, U+2388-238A, U+23BE-23CC, U+23CE-23CF, U+23DA-23DB, U+23F4-23FE, U+2460-24FF, U+25A0-25E5, U+25E7-25FC, U+25FF-2603, U+2605-2606, U+2609, U+260E-2612, U+2616-2617, U+261C-261F, U+262F, U+2639-263C, U+2668, U+2672-267D, U+2680-2687, U+2699, U+269B, U+26A0, U+2702, U+2713-2718, U+271A, U+2726-2727, U+2731, U+2733-2734, U+2736-273A, U+273D, U+273F-2740, U+2756, U+2758-275A, U+2764, U+2776-2794, U+27A1, U+27A4-27A6, U+27F5-27F6, U+27FB-27FC, U+2908-2909, U+2912-2913, U+2921-2926, U+2934-2935, U+294A-294D, U+29BF, U+29E8-29E9, U+29EB, U+29FA-29FB, U+2A00-2A02, U+2B00-2B1A, U+2B1D-2B2F, U+2B51-2B54, U+2B58, U+2B95, U+2BC0-2BC8, U+2BCA-2BCB, U+2BE8-2BEB, U+303F, U+3248-324F, U+D7B0-D7C6, U+D7CB-D7FB, U+EE06-EE0B, U+FB00-FB04, U+FFA0-FFBE, U+FFC2-FFC7, U+FFCA-FFCF, U+FFD2-FFD7, U+FFDA-FFDC, U+FFFC, U+1F100-1F10D, U+1F110-1F16D, U+1F170-1F18D, U+1F18F-1F190, U+1F19B-1F1AC, U+1F780-1F7BF, U+1F850-1F859, U+1F860-1F887, U+1F8B0-1F8B1;
+}

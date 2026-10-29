@@ -23,20 +23,31 @@
        避免主题后续改动影响正文。 */
     --article-font-family: var(--base-font-family);
 
-    /* 代码字体：西文交给 JetBrains Mono（步进 0.6em），中文交给更纱黑体 Mono SC 的
-       子集（只含非 ASCII），后者在其 @font-face 里设了 size-adjust: 120%，
-       把自身的半角 0.5em / 全角 1.0em 放大成 0.6em / 1.2em ——
-       正好是 JetBrains Mono 网格的 1 格与 2 格，所以中文注释、表格、ASCII 图都能对齐。
+    /* 代码字体：西文交给 JetBrains Mono（步进 0.6em），中文与非全角符号交给更纱黑体
+       Mono SC 的两组子集。两组都在 @font-face 里做缩放，把更纱自身的 0.5em / 1.0em
+       网格映射到 JetBrains Mono 的 0.6em 网格上：
 
-       为什么绝不是「把中文字体排在前面就行」：JetBrains Mono 的步进是 0.6em 而不是
-       0.5em，系统中文字形是 1.0em，1.0 ≠ 2×0.6，只要两者混用就必然错位。
-       换成 0.5em 步进的字体（如更纱黑体自己的半角）才能 2:1；本项目选择了保留
-       JetBrains Mono 外观 + 放大中文这条路线。
+         "Sarasa Mono SC Symbol"  size-adjust: 60%   1.0em x 0.6 = 0.6em = 1 格
+         "Sarasa Mono SC CJK"     size-adjust: 120%  0.5em x 1.2 = 0.6em = 1 格
+                                                     1.0em x 1.2 = 1.2em = 2 格
 
-       末尾的 PingFang/微软雅黑 只是「更纱子集没有这个码点」时的兜底：这类字会退回
-       1.0em 宽度从而对不齐，属于已知取舍（见 static/fonts/sarasa-mono-sc-cjk.css 注释）。 */
-    --code-font-family: "JetBrains Mono", "Sarasa Mono SC CJK",
-        Menlo, Monaco, Consolas, "Courier New",
+       为什么拆两组：更纱按 CJK 惯例把「东亚宽度=歧义/中性」的一批符号（←→▼■□★①✓ 等）
+       做成整字宽（1.0em）。若一律走 120%，它们会占 2 格，而代码块里的树状图是把这些
+       符号当 1 格用的（▼ 正对在 │ 下方），于是箭头与竖线错位。所以这类符号单独走 60%。
+
+       于是代码块里形成一条干净规则：东亚宽度非 W/F 的字符一律 1 格，汉字与全角形式 2 格。
+
+       两族的 unicode-range 有重叠，Symbol 排在前 → 重叠处由 Symbol 胜出
+       （字体栈靠前者优先，与 @font-face 声明顺序无关）。
+
+       为什么绝不能「把中文字体排在前面就完事」：JetBrains Mono 的步进是 0.6em 而不是
+       0.5em，系统中文字形是 1.0em，1.0 != 2x0.6，只要两者混用就必然错位。
+       本项目选择保留 JetBrains Mono 外观 + 缩放中文这条路线。
+
+       末尾的 PingFang/微软雅黑 只是「更纱两组都没有这个码点」时的兜底：这类字会退回
+       1.0em 宽度从而对不齐，属于已知取舍。 */
+    --code-font-family: "JetBrains Mono", "Sarasa Mono SC Symbol",
+        "Sarasa Mono SC CJK", Menlo, Monaco, Consolas, "Courier New",
         "PingFang SC", "Microsoft YaHei", monospace;
 }
 
