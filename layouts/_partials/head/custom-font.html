@@ -1,8 +1,41 @@
-{{- /* 覆盖 themes/stack/layouts/_partials/head/custom-font.html：
-        代码字体改为 JetBrains Mono（Google Fonts CDN），替换主题默认的 Lato。
-        中文字体霞鹜文楷走系统回退（用户本地已装则显示，未装则回退系统字体），
-        不从 CDN 加载，省去几 MB webfont 的网络开销。font-family 在 scss/custom.scss 里设置。 */ -}}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap">
+{{- /* 覆盖 themes/stack/layouts/_partials/head/custom-font.html
+
+   字体方案（全部自托管，2026-10-29 起不再依赖 fonts.googleapis.com）：
+
+     正文 / 标题   中文 思源宋体 Noto Serif SC            196 片 / 6.10 MB
+                   西文 EB Garamond（400/500/700 + 400 斜体）   8 片 / 0.19 MB
+     随笔分类      霞鹜文楷屏幕版 LXGW WenKai Screen       101 片 / 4.48 MB
+     代码块        西文 JetBrains Mono（400/700 + 400 斜体） 6 片 / 0.21 MB
+                   中文 更纱黑体 Mono SC（只取非 ASCII）     见下方说明
+
+   代码块对齐的做法：JetBrains Mono 的西文步进是 0.6em，而系统中文字形是 1.0em，
+   不成 2 倍关系，所以中文注释原本对不齐。这里另加载一份「只含非 ASCII 的更纱黑体」，
+   它自身满足全角 = 2×半角（半角 0.5em、全角 1.0em），再用 size-adjust: 120% 放大，
+   于是所有字形步进都成为 0.6em 的整数倍，正好落在 JetBrains Mono 的网格上。
+   详见 static/fonts/sarasa-mono-sc-cjk.css 顶部注释。
+
+   加载策略：
+     latin-webfonts.css  只有 6 KB，用普通 <link> 同步加载
+     其余三个较大，用 media="print" + onload 切成异步，避免阻塞首屏；
+     @font-face 里都是 font-display: swap，异步期间先用兜底衬线显示再交换。
+     woff2 由浏览器按 unicode-range 只下载命中的分片，不是全量下载。
+
+   改字体前请先读 static/fonts/ 下的 LICENSE-*.txt —— 各字体授权不同，
+   其中霞鹜文楷对「子集化后继续使用保留字体名」有专门的附加许可，仅限网页字体分发。 */ -}}
+
+{{- $latin := "fonts/latin-webfonts.css" | relURL -}}
+{{- $noto := "fonts/noto-serif-sc.css" | relURL -}}
+{{- $wenkai := "fonts/lxgw-wenkai-screen.css" | relURL -}}
+{{- $mono := "fonts/sarasa-mono-sc-cjk.css" | relURL -}}
+
+<link rel="stylesheet" href="{{ $latin }}">
+
+{{ range slice $noto $wenkai $mono }}
+<link rel="preload" as="style" href="{{ . }}">
+<link rel="stylesheet" href="{{ . }}" media="print" onload="this.media='all'">
+{{- end }}
+<noscript>
+    {{ range slice $noto $wenkai $mono }}
+    <link rel="stylesheet" href="{{ . }}">
+    {{- end }}
+</noscript>

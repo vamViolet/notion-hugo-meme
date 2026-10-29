@@ -7,3 +7,6 @@ node_modules
 *.lock
 # 本地手稿：内容通过 Notion 发布，CI 会同步到 content/zh/，根目录这份不入库以免重复
 OPERATION_MANUAL.md
+
+# Hugo js.Build 生成的编辑器路径映射，非源码，不该入库
+assets/jsconfig.json

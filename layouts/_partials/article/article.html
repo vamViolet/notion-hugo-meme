@@ -1,0 +1,51 @@
+{{- /* 覆盖 themes/stack/layouts/_partials/article/article.html
+       （同步自 CaiJimmy/hugo-theme-stack，仓库锁的 v4.0.3）
+
+   相对主题原版只改了一处：<article> 的 class 末尾按分类追加 essay-article。
+   assets/scss/custom.scss 用 .main-article.essay-article 把 --article-font-family
+   覆盖成霞鹜文楷，实现「技术文用宋体、随笔用楷体」。
+
+   为什么用 categories 而不是 .Section：content/zh/ 被 Hugo 当成 section，
+   所以所有文章的 .Section 都是 "zh"，无法区分技术与随笔（见 config.toml 注释）。
+   分类取值实测为 技术 / 随笔 / 关于 / 首页，front matter 里是单个字符串。
+
+   ⚠️ 这是主题文件的副本。升级 themes/stack 时需重新比对此文件，
+      确认上游 article.html 的改动是否要一并同步。
+      另外：本项目未在 layouts/single.html 覆盖 body-class，若改用 body 级 class，
+      需要再复制一份 single.html（50 行）。 */ -}}
+{{- $cats := .Params.categories -}}
+{{- $isEssay := false -}}
+{{- if $cats -}}
+    {{- if reflect.IsSlice $cats -}}
+        {{- $isEssay = in $cats "随笔" -}}
+    {{- else -}}
+        {{- $isEssay = eq (printf "%v" $cats) "随笔" -}}
+    {{- end -}}
+{{- end -}}
+<article class="{{ if .Params.image }}has-image {{ end }}main-article{{ if $isEssay }} essay-article{{ end }}">
+    {{ partial "article/components/header" (dict "Page" . "IsList" false) }}
+
+    {{ if .Scratch.Get "TOCEnabled" }}
+    <aside class="article-toc">
+        <details>
+            <summary>
+                <div class="article-toc-title">
+                    {{ partial "helper/icon" "chevron-right" }}
+                    <span>{{ T "article.tableOfContents" }}</span>
+                </div>
+            </summary>
+            <nav class="toc-nav">
+                {{ partial "article/components/toc" . | safeHTML }}
+            </nav>
+        </details>
+    </aside>
+    {{ end }}
+
+    {{ partial "article/components/content" . }}
+
+    {{ partial "article/components/footer" . }}
+
+    {{ if or .Params.math .Site.Params.article.math }}
+        {{ partialCached "article/components/math.html" . }}
+    {{ end }}
+</article>
