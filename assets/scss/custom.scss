@@ -5,7 +5,7 @@
    字体分工（2026-10-29 起全部自托管，不再依赖 fonts.googleapis.com）：
      正文 / 标题   中文 思源宋体 Noto Serif SC  +  西文 EB Garamond
      随笔分类      霞鹜文楷屏幕版 LXGW WenKai Screen
-     代码块        西文 JetBrains Mono  +  中文 更纱黑体 Mono SC（仅非 ASCII）
+     代码块        西文 JetBrains Mono，中文走系统字体
 
    @font-face 与 woff2 都在 static/fonts/，由 layouts/_partials/head/custom-font.html 引入；
    这里只负责把它们排进字体栈、以及给随笔分类换栈。
@@ -23,48 +23,18 @@
        避免主题后续改动影响正文。 */
     --article-font-family: var(--base-font-family);
 
-    /* 代码字体：西文交给 JetBrains Mono（步进 0.6em），中文与非全角符号交给更纱黑体
-       Mono SC 的两组子集。两组都在 @font-face 里做缩放，把更纱自身的 0.5em / 1.0em
-       网格映射到 JetBrains Mono 的 0.6em 网格上：
+    /* 代码字体：西文 JetBrains Mono（步进 0.6em），中文交给系统中文字体。
 
-         "Sarasa Mono SC Symbol"  size-adjust: 60%   1.0em x 0.6 = 0.6em = 1 格
-         "Sarasa Mono SC CJK"     size-adjust: 120%  0.5em x 1.2 = 0.6em = 1 格
-                                                     1.0em x 1.2 = 1.2em = 2 格
+       这里曾经做过「让代码块里的中英文严格等宽对齐」：额外自托管更纱黑体 Mono SC 的
+       两份子集，各用一组 size-adjust 把它的 0.5em / 1.0em 网格映射到 JetBrains Mono
+       的 0.6em 网格上（汉字 2 格、其余 1 格）。已于 2026-10-30 按维护者要求整体撤除，
+       原因和取舍记录在 OPERATION_MANUAL.md 第六节，字体文件也已删除。
 
-       为什么拆两组：更纱按 CJK 惯例把「东亚宽度=歧义/中性」的一批符号（←→▼■□★①✓ 等）
-       做成整字宽（1.0em）。若一律走 120%，它们会占 2 格，而代码块里的树状图是把这些
-       符号当 1 格用的（▼ 正对在 │ 下方），于是箭头与竖线错位。所以这类符号单独走 60%。
-
-       于是代码块里形成一条干净规则：东亚宽度非 W/F 的字符一律 1 格，汉字与全角形式 2 格。
-
-       两族的 unicode-range 有重叠，Symbol 排在前 → 重叠处由 Symbol 胜出
-       （字体栈靠前者优先，与 @font-face 声明顺序无关）。
-
-       为什么绝不能「把中文字体排在前面就完事」：JetBrains Mono 的步进是 0.6em 而不是
-       0.5em，系统中文字形是 1.0em，1.0 != 2x0.6，只要两者混用就必然错位。
-       本项目选择保留 JetBrains Mono 外观 + 缩放中文这条路线。
-
-       末尾的 PingFang/微软雅黑 只是「更纱两组都没有这个码点」时的兜底：这类字会退回
-       1.0em 宽度从而对不齐，属于已知取舍。 */
-    --code-font-family: "JetBrains Mono", "Sarasa Mono SC Symbol",
-        "Sarasa Mono SC CJK", Menlo, Monaco, Consolas, "Courier New",
-        "PingFang SC", "Microsoft YaHei", monospace;
-}
-
-/* 代码块内必须关掉 CJK 的「自动间距」与「标点压缩」，否则等宽网格会被破坏：
-
-     text-autospace      —— 在中英文交界处自动插入空隙。主题在 body 上写死了
-                            `ideograph-alpha ideograph-numeric punctuation insert`，
-                            而且该属性的初始值本就是 normal（Chrome 140+ 起生效），
-                            等于在等宽网格里凭空多出宽度：中英混排的 ASCII 图/树状图，
-                            右侧框线会被撑开而对不齐左侧。
-     text-spacing-trim   —— 压缩全角标点的宽度（初始值 normal 就会 trim），同理破坏网格。
-                            改 space-all 表示全角标点一律保持全宽。
-
-   仅作用于代码上下文，正文的中英混排间距不受影响（那里自动间距是好东西）。 */
-pre, code, kbd, samp {
-    text-autospace: no-autospace;
-    text-spacing-trim: space-all;
+       代价（已知且接受）：JetBrains Mono 步进 0.6em，系统中文字形 1.0em，1.0 != 2x0.6，
+       所以代码块里中英混排时列宽对不齐 —— 树状图/ASCII 图里的中文注释会错位。
+       块内的连接线本身（─│┌┐└┘├┬ 与 ▼ 等）若整行没有中文，仍是对齐的。 */
+    --code-font-family: "JetBrains Mono", Menlo, Monaco, Consolas,
+        "Courier New", "PingFang SC", "Microsoft YaHei", monospace;
 }
 
 /* 随笔分类换成霞鹜文楷（楷体）。

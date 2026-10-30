@@ -6,17 +6,15 @@
                    西文 EB Garamond（400/500/700 + 400 斜体）   8 片 / 0.19 MB
      随笔分类      霞鹜文楷屏幕版 LXGW WenKai Screen       101 片 / 4.48 MB
      代码块        西文 JetBrains Mono（400/700 + 400 斜体） 6 片 / 0.21 MB
-                   中文 更纱黑体 Mono SC（只取非 ASCII）     见下方说明
+                   中文不另配字体，走系统（见 assets/scss/custom.scss 的说明与代价）
 
-   代码块对齐的做法：JetBrains Mono 的西文步进是 0.6em，而系统中文字形是 1.0em，
-   不成 2 倍关系，所以中文注释原本对不齐。这里另加载一份「只含非 ASCII 的更纱黑体」，
-   它自身满足全角 = 2×半角（半角 0.5em、全角 1.0em），再用 size-adjust: 120% 放大，
-   于是所有字形步进都成为 0.6em 的整数倍，正好落在 JetBrains Mono 的网格上。
-   详见 static/fonts/sarasa-mono-sc-cjk.css 顶部注释。
+   代码块里「让中英文严格等宽对齐」的那套更纱黑体子集（两份 size-adjust）已于
+   2026-10-30 按维护者要求整体撤除，字体文件与对应 CSS 都已删除。取舍记录在
+   OPERATION_MANUAL.md 第六节。
 
    加载策略：
-     latin-webfonts.css  只有 6 KB，用普通 <link> 同步加载
-     其余三个较大，用 media="print" + onload 切成异步，避免阻塞首屏；
+     latin-webfonts.css  只有 10 KB，用普通 <link> 同步加载
+     另两个较大，用 media="print" + onload 切成异步，避免阻塞首屏；
      @font-face 里都是 font-display: swap，异步期间先用兜底衬线显示再交换。
      woff2 由浏览器按 unicode-range 只下载命中的分片，不是全量下载。
 
@@ -26,17 +24,15 @@
 {{- $latin := "fonts/latin-webfonts.css" | relURL -}}
 {{- $noto := "fonts/noto-serif-sc.css" | relURL -}}
 {{- $wenkai := "fonts/lxgw-wenkai-screen.css" | relURL -}}
-{{- $mono := "fonts/sarasa-mono-sc-cjk.css" | relURL -}}
-{{- $sym := "fonts/sarasa-mono-sc-symbol.css" | relURL -}}
 
 <link rel="stylesheet" href="{{ $latin }}">
 
-{{ range slice $noto $wenkai $mono $sym }}
+{{ range slice $noto $wenkai }}
 <link rel="preload" as="style" href="{{ . }}">
 <link rel="stylesheet" href="{{ . }}" media="print" onload="this.media='all'">
 {{- end }}
 <noscript>
-    {{ range slice $noto $wenkai $mono $sym }}
+    {{ range slice $noto $wenkai }}
     <link rel="stylesheet" href="{{ . }}">
     {{- end }}
 </noscript>
