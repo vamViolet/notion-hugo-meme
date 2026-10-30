@@ -51,6 +51,22 @@
         "PingFang SC", "Microsoft YaHei", monospace;
 }
 
+/* 代码块内必须关掉 CJK 的「自动间距」与「标点压缩」，否则等宽网格会被破坏：
+
+     text-autospace      —— 在中英文交界处自动插入空隙。主题在 body 上写死了
+                            `ideograph-alpha ideograph-numeric punctuation insert`，
+                            而且该属性的初始值本就是 normal（Chrome 140+ 起生效），
+                            等于在等宽网格里凭空多出宽度：中英混排的 ASCII 图/树状图，
+                            右侧框线会被撑开而对不齐左侧。
+     text-spacing-trim   —— 压缩全角标点的宽度（初始值 normal 就会 trim），同理破坏网格。
+                            改 space-all 表示全角标点一律保持全宽。
+
+   仅作用于代码上下文，正文的中英混排间距不受影响（那里自动间距是好东西）。 */
+pre, code, kbd, samp {
+    text-autospace: no-autospace;
+    text-spacing-trim: space-all;
+}
+
 /* 随笔分类换成霞鹜文楷（楷体）。
    class 由 layouts/_partials/article/article.html 判定 categories 后挂在 <article> 上。
    作用域同时覆盖 .article-title 和 .article-content（两者都读 --article-font-family），
