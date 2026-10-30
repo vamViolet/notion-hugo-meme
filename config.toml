@@ -87,7 +87,16 @@ enableRobotsTXT = true
             autoHeadingIDType = "github"
         [markup.goldmark.renderer]
             hardWraps = false
-            unsafe = true
+            # 严禁改为 true。文章里只要出现一个没有反引号包裹的裸标签（技术文里很常见，
+            # 比如正文里写「是一个 <select> 下拉框」），它就会被当成真实 HTML 原样输出。
+            # 未闭合的 <select> 会让浏览器进入 "in select" 解析模式，把其后整篇文章
+            # 都吞进 select 元素里，而 select 内部只渲染 <option>，于是页面从那一行起
+            # 内容全部不可见（2026-10-30 实际踩过：博客主题从 MemE 切到 Stack 实录
+            # 一文从第七章开始整段消失，而 HTML 里内容其实是完整的）。
+            # 关掉后裸标签会被替换成 <!-- raw HTML omitted -->，最坏也只是丢一个标签本身，
+            # 不会影响后续内容。已确认全站 content 没有一处是故意用原始 HTML 的。
+            # 正确的写作方式：在 Notion 里给这类标签加反引号，写成 `<select>`。
+            unsafe = false
             xHTML = false
     [markup.highlight]
         codeFences = true
